@@ -1,9 +1,11 @@
 const wordSearch = (words, puzzle) => {
 	// ascii
+
 	const asciiStart = 65;
 	const getCharFromCode = code => String.fromCharCode(code);
 
 	// puzzle details
+
 	const puzzleArray = puzzle.split('');
 	const puzzleSize = Math.sqrt(puzzleArray.length);
 	const puzzleColumns = [];
@@ -13,25 +15,30 @@ const wordSearch = (words, puzzle) => {
 	}
 
 	// puzzle navigation
-	const readIndex = index => {
+
+	const offsetPuzzleStart = 1;
+	const getCharIndex = char => puzzle.indexOf(char) + offsetPuzzleStart;
+	const getCharPosition = index => {
 		const row = Math.ceil(index / puzzleSize);
 		const column = puzzleColumns[index - (row - 1) * puzzleSize - 1];
-		console.log(row);
-		console.log(column);
+		return [column, row];
+	};
+
+	// puzzle search
+
+	const searchLetter = char => {
+		const index = getCharIndex(char);
+		const position = getCharPosition(index);
+		console.log(position);
 	};
 
 	console.log(puzzleSize);
 	console.log(puzzleArray);
 	console.log(puzzleColumns);
 
-	// H
-	const char = words[0][0];
-
-	// get index + offset (puzzle starts at 1)
-	const getIndex = char => puzzle.indexOf(char) + 1;
-	const index = getIndex(char);
-
-	readIndex(index);
+	// letter H
+	const letter = words[0][0];
+	searchLetter(letter);
 };
 
 wordSearch(
