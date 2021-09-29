@@ -9,8 +9,9 @@ const wordSearch = (words, puzzle) => {
 		build() {
 			this.array = puzzle.split('');
 			this.size = Math.sqrt(this.array.length);
-			this.columns = [];
+			this.cursor = 0;
 			this.offset = 1;
+			this.columns = [];
 			this.createColumns();
 		},
 		createColumns() {
@@ -18,59 +19,71 @@ const wordSearch = (words, puzzle) => {
 				this.columns.push(String.fromCharCode(ascii.upperCase.start + i));
 			}
 		},
-		getLetterLocation(index) {
-			// index += this.offset;
+		getGridLocation(index) {
+			index += this.offset;
 			const row = Math.ceil(index / this.size);
 			const column = this.columns[index - (row - 1) * this.size - 1];
 			return [column, row];
 		},
-		getLocationValue(index) {
-			// index += this.offset;
-			return this.array[index];
+		getCursorValue(cursor) {
+			return this.array[cursor];
+		},
+		getFirstLetterLocation(letter) {
+			while (this.cursor < this.array.length) {
+				if (letter === this.array[this.cursor]) {
+					return this.getGridLocation(this.cursor);
+				}
+				++this.cursor;
+			}
+			if (this.cursor >= this.array.length) {
+				this.cursor = 0;
+			}
+		},
+		getRemainingLetters(letters) {
+			let gap = this.cursor;
+			const directions = {
+				right() {
+					return (gap += 1);
+				},
+				down() {
+					return (gap += 8);
+				},
+				rightAndDown() {
+					return (gap += 9);
+				},
+			};
+			const dirs = Object.keys(directions);
+			let direction;
+
+			for (let i = 0; i < dirs.length; ++i) {
+				// if (letters[0] === this.array[this.cursor + directions[dirs[i]]()]) {
+				console.log(gap);
+				console.log(this.getGridLocation([directions[dirs[i]]()]));
+				// }
+			}
 		},
 	};
 
-	myPuzzle.build();
-	console.log(myPuzzle);
-	console.log(myPuzzle.getLetterLocation(1));
-	console.log(myPuzzle.getLocationValue(0));
+	// searching for words
 
-	// const searchRemainingLetters = (location, letters) => {};
+	const firstWord = words[0];
 
-	// const firstWord = words[0];
-
-	// const search = word => {
-	// 	const firstLetter = word[0];
-	// 	const remainingLetters = word.slice(1);
-
-	// 	let firstLetterLocation, remainingLetterLocations;
-	// 	let i = 0;
-
-	// 	while (i < puzzleArray.length) {
-	// 		if (firstLetter === puzzle[i]) {
-	// 			firstLetterLocation = getLetterLocation(i);
-	// 			remainingLetterLocations = searchRemainingLetters(
-	// 				firstLetterLocation,
-	// 				remainingLetters
-	// 			);
-	// 			remainingLetterLocations = [];
-	// 			if (remainingLetterLocations.length) {
-	// 				break;
-	// 			}
-	// 		}
-	// 		console.log(i);
-	// 		++i;
-	// 	}
-
-	// 	return [firstLetterLocation, ...remainingLetterLocations];
-	// };
-
-	// const test = search(firstWord);
+	const search = word => {
+		const firstLetterLocation = myPuzzle.getFirstLetterLocation(word[0]);
+		const remainingLettersLocation = myPuzzle.getRemainingLetters(
+			word.slice(1)
+		);
+	};
 
 	// logs
 
-	console.log('--------------');
-	// console.log(puzzleArray);
+	console.log('-----PROGRAM-STARTS-----');
+	// console.log(myPuzzle);
+
+	// run
+
+	myPuzzle.build();
+	search(firstWord);
 };
 
 wordSearch(
