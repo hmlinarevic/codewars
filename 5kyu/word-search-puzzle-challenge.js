@@ -9,10 +9,12 @@ const wordSearch = (words, puzzle) => {
 		build() {
 			this.array = puzzle.split('');
 			this.size = Math.sqrt(this.array.length);
-			this.cursor = 0;
-			this.offset = 1;
 			this.columns = [];
 			this.createColumns();
+			this.directions = ['right', 'bottom', 'bottomRight'];
+			this.cursor = 0;
+			this.cursorIncrementPerDirection = [1, this.size, this.size + 1];
+			this.offset = 1;
 		},
 		createColumns() {
 			for (let i = 0; i < this.size; ++i) {
@@ -28,39 +30,61 @@ const wordSearch = (words, puzzle) => {
 		getCursorValue(cursor) {
 			return this.array[cursor];
 		},
-		getFirstLetterLocation(letter) {
+		moveCursorTo(letter) {
 			while (this.cursor < this.array.length) {
 				if (letter === this.array[this.cursor]) {
-					return this.getGridLocation(this.cursor);
+					return;
 				}
 				++this.cursor;
 			}
-			if (this.cursor >= this.array.length) {
-				this.cursor = 0;
-			}
+			this.cursor = this.cursor >= this.array.length ? 0 : this.cursor;
 		},
-		getRemainingLetters(letters) {
-			let gap = this.cursor;
-			const directions = {
-				right() {
-					return (gap += 1);
-				},
-				down() {
-					return (gap += 8);
-				},
-				rightAndDown() {
-					return (gap += 9);
-				},
-			};
-			const dirs = Object.keys(directions);
-			let direction;
+		checkForRemainingLetters(letters) {
+			const cursors = {};
 
-			for (let i = 0; i < dirs.length; ++i) {
-				// if (letters[0] === this.array[this.cursor + directions[dirs[i]]()]) {
-				console.log(gap);
-				console.log(this.getGridLocation([directions[dirs[i]]()]));
-				// }
-			}
+			const listCursors = increment => {
+				return letters.split('').map((_, i) => {
+					return i * increment + this.cursor;
+				});
+			};
+
+			const addCursorsToEachDirection = () => {
+				this.directions.forEach((direction, i) => {
+					const increment = this.cursorIncrementPerDirection[i];
+					cursors[direction] = listCursors(increment);
+				});
+			};
+
+			addCursorsToEachDirection();
+
+			console.log(cursors);
+
+			const readPossibleCursors = () => {
+				let count = 0;
+				for (let i = 0; i < directions.length; ++i) {
+					const locationsList = locations[directions[i]];
+					result = letters.split('').every((char, i) => {
+						return char === this.getCursorValue(locationsList[i]);
+					});
+					console.log(result);
+					if (result === true) {
+						return directions[i];
+					}
+					// for (let j = 0; j < locationsList.length; ++j) {
+					// 	if (letters[j] === this.getCursorValue(locationsList[j])) {
+					// 		++count;
+					// 	}
+					// 	if (count === letters.length) {
+					// 		result = directions[i];
+					// 	}
+					// }
+				}
+			};
+
+			// const correctDirection = readPossibleCursors();
+
+			console.log('letters', letters);
+			console.log('cursor', this.cursor);
 		},
 	};
 
@@ -69,10 +93,11 @@ const wordSearch = (words, puzzle) => {
 	const firstWord = words[0];
 
 	const search = word => {
-		const firstLetterLocation = myPuzzle.getFirstLetterLocation(word[0]);
-		const remainingLettersLocation = myPuzzle.getRemainingLetters(
-			word.slice(1)
-		);
+		const firstLetter = word[0];
+		myPuzzle.moveCursorTo(firstLetter);
+		myPuzzle.checkForRemainingLetters(word.slice(1));
+		// const firstLetterLocation = myPuzzle.getFirstLetterLocation(word[0]);
+		// const remainingLettersLocation = myPuzzle.getRemainingLetters();
 	};
 
 	// logs
