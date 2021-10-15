@@ -1,24 +1,30 @@
 const wordSearch = (words, puzzle) => {
-	const ascii = {
-		upperCase: {
-			start: 65,
-		},
-	};
+	let startLetter,
+		startLetterIndex,
+		directionIndices,
+		remainingLetters,
+		areMatchWithPuzzleLetters;
 
-	const myPuzzle = {
-		build() {
-			this.array = puzzle.split('');
-			this.size = Math.sqrt(this.array.length);
+	let results = [];
+
+	const asciiUppercaseStart = 65;
+
+	const puzzleNavigation = {
+		init() {
+			this.size = Math.sqrt(puzzle.length);
+			this.offset = 1;
 			this.columns = [];
 			this.createColumns();
-			this.directions = ['right', 'bottom', 'bottomRight'];
-			this.cursor = 0;
-			this.cursorIncrementPerDirection = [1, this.size, this.size + 1];
-			this.offset = 1;
+			this.directionsIncrement = {
+				horizontal: 1,
+				vertical: 8,
+				diagonal: 9,
+			};
+			this.directions = Object.keys(this.directionsIncrement);
 		},
 		createColumns() {
 			for (let i = 0; i < this.size; ++i) {
-				this.columns.push(String.fromCharCode(ascii.upperCase.start + i));
+				this.columns.push(String.fromCharCode(asciiUppercaseStart + i));
 			}
 		},
 		getGridLocation(index) {
@@ -27,91 +33,68 @@ const wordSearch = (words, puzzle) => {
 			const column = this.columns[index - (row - 1) * this.size - 1];
 			return [column, row];
 		},
-		getCursorValue(cursor) {
-			return this.array[cursor];
-		},
-		moveCursorTo(letter) {
-			while (this.cursor < this.array.length) {
-				if (letter === this.array[this.cursor]) {
-					return;
-				}
-				++this.cursor;
+	};
+
+	puzzleNavigation.init();
+
+	const getDirectionIndices = (letters, direction, startIndex) => {
+		return letters
+			.split('')
+			.map(
+				(_, i) =>
+					(i + 1) * puzzleDetails.directionsIncrement[direction] + startIndex
+			);
+	};
+
+	const getRemainingLetters = (letters, startLetterIndex) => {
+		for (let i = 0; i < directions.length; ++i) {
+			directionIndices = getDirectionIndices(
+				letters,
+				directions[i],
+				startLetterIndex
+			);
+			areMatchWithPuzzleLetters = directionIndices.every(
+				(dirIndex, i) => puzzle[dirIndex] === letters[i]
+			);
+			console.log(areMatchWithPuzzleLetters);
+			if (areMatchWithPuzzleLetters) {
+				directionIndices.unshift(startLetterIndex);
+				return directionIndices;
 			}
-			this.cursor = this.cursor >= this.array.length ? 0 : this.cursor;
-		},
-		checkForRemainingLetters(letters) {
-			const cursors = {};
-
-			const listCursors = increment => {
-				return letters.split('').map((_, i) => {
-					return i * increment + this.cursor;
-				});
-			};
-
-			const addCursorsToEachDirection = () => {
-				this.directions.forEach((direction, i) => {
-					const increment = this.cursorIncrementPerDirection[i];
-					cursors[direction] = listCursors(increment);
-				});
-			};
-
-			addCursorsToEachDirection();
-
-			console.log(cursors);
-
-			const readPossibleCursors = () => {
-				let count = 0;
-				for (let i = 0; i < directions.length; ++i) {
-					const locationsList = locations[directions[i]];
-					result = letters.split('').every((char, i) => {
-						return char === this.getCursorValue(locationsList[i]);
-					});
-					console.log(result);
-					if (result === true) {
-						return directions[i];
-					}
-					// for (let j = 0; j < locationsList.length; ++j) {
-					// 	if (letters[j] === this.getCursorValue(locationsList[j])) {
-					// 		++count;
-					// 	}
-					// 	if (count === letters.length) {
-					// 		result = directions[i];
-					// 	}
-					// }
-				}
-			};
-
-			// const correctDirection = readPossibleCursors();
-
-			console.log('letters', letters);
-			console.log('cursor', this.cursor);
-		},
+		}
 	};
 
-	// searching for words
+	// for (let i = 0; i < words.length; ++i) {
+	// 	startLetter = words[i][0];
 
-	const firstWord = words[0];
-
-	const search = word => {
-		const firstLetter = word[0];
-		myPuzzle.moveCursorTo(firstLetter);
-		myPuzzle.checkForRemainingLetters(word.slice(1));
-		// const firstLetterLocation = myPuzzle.getFirstLetterLocation(word[0]);
-		// const remainingLettersLocation = myPuzzle.getRemainingLetters();
-	};
-
-	// logs
-
-	console.log('-----PROGRAM-STARTS-----');
-	// console.log(myPuzzle);
-
-	// run
-
-	myPuzzle.build();
-	search(firstWord);
+	// 	for (let j = 0; j < puzzle.length; ++j) {
+	// 		if (startLetter === puzzle[j]) {
+	// 			startLetterIndex = j;
+	// 			remainingLetters = getRemainingLetters(
+	// 				words[i].slice(1),
+	// 				startLetterIndex
+	// 			);
+	// 			if (remainingLetters.length > 0) {
+	// 				console.log(remainingLetters);
+	// 				break;
+	// 			}
+	// 		}
+	// 	}
+	// 	//
+	// 	if (remainingLetters.length) {
+	// 		results.push(
+	// 			remainingLetters.flatMap(letterIndex => getGridLocation(letterIndex))
+	// 		);
+	// 	} else {
+	// 		results.push('Word Not Found');
+	// 	}
+	// }
+	return results;
 };
 
-wordSearch(
-	['HELLO', 'WORLD'],
-	'FHKEFFHDFEOGIOPVFLDKOIAQFLWIHQRMUOTOXNRIAAESRUOFCUHHELTUFJJSNJDO'
+console.log(
+	wordSearch(
+		['HELLO', 'WORLD'],
+		'FHKEFFHDFEOGIOPVFLDKOIAQFLWIHQRMUOTOXNRIAAESRUOFCUHHELTUFJJSNJDO'
+	)
 );
