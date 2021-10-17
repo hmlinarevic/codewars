@@ -1,16 +1,14 @@
 const wordSearch = (words, puzzle) => {
-	let results = [];
 	const asciiUppercaseStart = 65;
 
 	const myPuzzle = {
 		size: Math.sqrt(puzzle.length),
-		offset: 1,
 		columns: [],
 		navigation: {
 			directions: ['horizontal', 'vertical', 'diagonal'],
 			increments: [1, 8, 9],
+			offset: 1,
 		},
-
 		createColumns() {
 			for (let i = 0; i < this.size; ++i) {
 				this.columns.push(String.fromCharCode(asciiUppercaseStart + i));
@@ -33,21 +31,19 @@ const wordSearch = (words, puzzle) => {
 		},
 
 		getGridLocation(index) {
-			index += this.offset;
+			index += this.navigation.offset;
 			const row = Math.ceil(index / this.size);
 			const column = this.columns[index - (row - 1) * this.size - 1];
 			return [column, row];
 		},
 		getAdjecentIndices() {
-			const { directions } = this.navigation;
+			const { directions, increments } = this.navigation;
 			const indices = {};
-			for (let i = 0; i < directions.length; ++i) {
-				indices[directions[i]] = this.remainingLetters.split('').map((_, j) => {
-					return (
-						(j + 1) * this.navigation.increments[i] + this.startLetterIndex
-					);
+			directions.forEach((dir, i) => {
+				indices[dir] = this.remainingLetters.split('').map((_, j) => {
+					return (j + 1) * increments[i] + this.startLetterIndex;
 				});
-			}
+			});
 			return indices;
 		},
 		getCorrectIndices() {
@@ -65,6 +61,32 @@ const wordSearch = (words, puzzle) => {
 					return ['Not Found'];
 				}
 			}
+		},
+		getSolution() {
+			const { directions: dirs } = this.navigation;
+			const indices = this.adjecentIndices;
+			let solution, match, correctIndices;
+
+			// find correct indices that correspond to remaining letters
+			for (let i = 0; i < dirs.length; ++i) {
+				indices[dirs[i]].every((item, i) => {
+					match = puzzle[item] === this.remainingLetters[i];
+					console.log(match);
+				});
+				if (match) {
+					correctIndices = indices[dirs[i]];
+				}
+			}
+
+			if (!correctIndices) {
+				solution = ['Word Not Found'];
+			} else {
+				// add start letter index to indices
+				correctIndices.unshift(this.startLetterIndex);
+				// transform all indices to grid locations
+				solution = correctIndices.map(index => this.getGridLocation(index));
+			}
+			console.log(solution);
 		},
 		getLocations() {
 			console.log(this.correctIndices, 'correctIndices');
@@ -85,8 +107,7 @@ const wordSearch = (words, puzzle) => {
 				myPuzzle.setStartLetterIndex(j);
 				myPuzzle.setRemainingLetters(words[i].slice(1));
 				myPuzzle.setAdjecentIndices();
-				myPuzzle.setCorrectIndices();
-				myPuzzle.getLocations();
+				myPuzzle.getSolution();
 
 				break;
 				if (remainingLetters.length > 0) {
@@ -105,13 +126,13 @@ const wordSearch = (words, puzzle) => {
 			results.push('Word Not Found');
 		}
 	}
-	return 'hello';
+	return 'vader';
 };
 
 console.log(
 	wordSearch(
 		['HELLO', 'WORLD'],
-		'FHKEFFHDFPOGIOPVFLDKOIAQFLWIHQRMUOTOXNRIAAESRUOFCUHHELTUFJJSNJDO'
+		'FHKEFFHDFEOGIOPVFLDKOIAQFLWIHQRMUOTOXNRIAAESRUOFCUHHELTUFJJSNJDO'
 	)
 );
 
