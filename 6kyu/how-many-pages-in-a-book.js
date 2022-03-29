@@ -11,28 +11,13 @@
   All inputs will be valid.
 */
 
-const amountOfPages = (summary) => {};
+const amountOfPages = (summary) => {
+  let pages = '';
+  let counter = 0;
 
-amountOfPages(25); // --> 17
-amountOfPages(5); // --> 5
-
-/*
-
-  1 2 3 4 5 6 7 8 9 --> 9
-  10 11 12 13 14 15 16 17 18 19 --> 10
-  20 21 22 23 24 25 26 27 28 29 --> 10
-
-  1 - 9 -> (9 single)
-
-  10 - 99 -> (89 double)
-
-  100 - 999 -> (899 triple)
-
-  1000 - 9999 -> (8999 quadrouple)
-
-
-  25 - 9 = 16
-
-  16 - 89 = 73
-
-*/
+  while (pages.length < summary) {
+    counter++;
+    pages += counter;
+  }
+  return counter;
+};
